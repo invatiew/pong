@@ -36,10 +36,10 @@ entity pong_top is
            HWRITE : in  STD_LOGIC;
            HSEL : in  STD_LOGIC;
            HREADY : in  STD_LOGIC;
-           HTRANS : in  STD_LOGIC;
+           HTRANS : in  STD_LOGIC_VECTOR (1 downto 0);
            HWDATA : in  STD_LOGIC_VECTOR (31 downto 0);
            HRDATA : out  STD_LOGIC_VECTOR (31 downto 0);
-           HREADYOUT : in  STD_LOGIC;
+           HREADYOUT : out  STD_LOGIC;
            switch_s1 : in  STD_LOGIC;
            switch_s2 : in  STD_LOGIC);
 end pong_top;
@@ -76,7 +76,8 @@ architecture Behavioral of pong_top is
 		collision_r1 : OUT std_logic;
 		collision_r2 : OUT std_logic;
 		collision_ro : OUT std_logic;
-		collision_ru : OUT std_logic
+		collision_ru : OUT std_logic;
+    start_round : out std_logic
 		);
 	END COMPONENT;
 
@@ -100,6 +101,17 @@ architecture Behavioral of pong_top is
 		score_s2 : IN std_logic_vector(7 downto 0);          
 		HRDATA : OUT std_logic_vector(31 downto 0);
 		HREADYOUT : OUT std_logic
+		);
+	END COMPONENT;
+
+	COMPONENT score
+	PORT(
+		clk : IN std_logic;
+		rst_n : IN std_logic;
+		col_r1 : IN std_logic;
+		col_r2 : IN std_logic;          
+		score_s1 : OUT std_logic_vector(7 downto 0);
+		score_s2 : OUT std_logic_vector(7 downto 0)
 		);
 	END COMPONENT;
 
@@ -128,10 +140,14 @@ architecture Behavioral of pong_top is
   -- signal for the score
   signal score_s1 : std_logic_vector (7 downto 0);
   signal score_s2 : std_logic_vector (7 downto 0);
+  
+  -- restart for a new round
+  signal start_round : std_logic;
 
 begin
 
-	Inst_ball_speed: ball_speed PORT MAP(
+	Inst_ball_speed: ball_speed 
+  PORT MAP(
 		clk => HCLK,
 		rst_n => HRESETn,
 		col_s1 => col_s1,
@@ -144,7 +160,8 @@ begin
 		ball_vy_out => ball_vx_next
 	);
 
-	Inst_colision: colision PORT MAP(
+	Inst_colision: colision 
+  PORT MAP(
 		clk => HCLK,
 		rst_n => HRESETn,
 		posx_ball => posx_ball,
@@ -158,10 +175,12 @@ begin
 		collision_r1 => col_r1,
 		collision_r2 => col_r2,
 		collision_ro => col_ro,
-		collision_ru => col_ru
+		collision_ru => col_ru,
+    start_round => start_round
 	);
  
-	Inst_cpu_regs: cpu_regs PORT MAP(
+	Inst_cpu_regs: cpu_regs 
+  PORT MAP(
 		clk => HCLK,
 		rst_n => HRESETn,
 		HADDR => HADDR,
@@ -182,6 +201,14 @@ begin
 		score_s2 => score_s2
 	);
  
+	Inst_score: score PORT MAP(
+		clk => HCLK,
+		rst_n => HRESETn,
+		col_r1 => col_r1,
+		col_r2 => col_r2,
+		score_s1 => score_s1,
+		score_s2 => score_s2
+	);
   
 end Behavioral;
 

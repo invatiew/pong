@@ -87,20 +87,20 @@ architecture Behavioral of cpu_regs is
   AHBOUTPROC: process (clk,rst_n)
     begin
       if rst_n = '0' then
-        HRDATA <= X"0000000000000000";
+        HRDATA <= X"00000000";
       elsif rising_edge(clk) then
         if last_HWRITE = '0' and last_HSEL = '1' and last_HTRANS(1) = '1' then
           case (last_HADDR) is 
-            when x"0000000000000000" =>
+            when x"00000000" =>
               HRDATA <= posy_ball & posx_ball;
-            when x"0000000000000001" =>
+            when x"00000001" =>
               HRDATA <= posy_s1 & posx_s1;
-            when x"0000000000000002" =>
+            when x"00000002" =>
               HRDATA <= posy_s2 & posx_s2;
-            when x"0000000000000003" =>
-              HRDATA <= X"0000" & score_s1 & X"0000" & score_s2;
+            when x"00000003" =>
+              HRDATA <= X"00" & score_s1 & X"00" & score_s2;
             when others =>
-              HRDATA <= x"0000000000000000";
+              HRDATA <= x"00000000";
           end case;
         end if;
       end if;

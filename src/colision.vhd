@@ -43,7 +43,8 @@ entity colision is
            collision_r1 : out  STD_LOGIC;
            collision_r2 : out  STD_LOGIC;
            collision_ro : out  STD_LOGIC;
-           collision_ru : out  STD_LOGIC);
+           collision_ru : out  STD_LOGIC;
+           start_round : out STD_LOGIC);
 end colision;
 
 architecture Behavioral of colision is
@@ -102,7 +103,7 @@ col_r2 : process(clk,rst_n)
     end if;
   end process;
 
-
+start_round <= '1' when collision_r1 or collision_r2 else '0';
 
 
 col_ro : process(clk,rst_n)
