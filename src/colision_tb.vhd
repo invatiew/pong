@@ -52,7 +52,9 @@ ARCHITECTURE behavior OF colision_tb IS
          collision_s1 : OUT  std_logic;
          collision_s2 : OUT  std_logic;
          collision_r1 : OUT  std_logic;
-         collision_r2 : OUT  std_logic
+         collision_r2 : OUT  std_logic;
+         collision_ro : out  STD_LOGIC;
+         collision_ru : out  STD_LOGIC
         );
     END COMPONENT;
     
@@ -66,13 +68,15 @@ ARCHITECTURE behavior OF colision_tb IS
    signal posy_s1 : std_logic_vector(15 downto 0) := (others => '0');
    signal posx_s2 : std_logic_vector(15 downto 0) := (others => '0');
    signal posy_s2 : std_logic_vector(15 downto 0) := (others => '0');
-
+   
  	--Outputs
    signal collision_s1 : std_logic;
    signal collision_s2 : std_logic;
    signal collision_r1 : std_logic;
    signal collision_r2 : std_logic;
-
+   signal collision_ro : std_logic;
+   signal collision_ru : std_logic;
+   
    -- Clock period definitions
    constant clk_period : time := 10 ns;
   
@@ -92,7 +96,9 @@ BEGIN
           collision_s1 => collision_s1,
           collision_s2 => collision_s2,
           collision_r1 => collision_r1,
-          collision_r2 => collision_r2
+          collision_r2 => collision_r2,
+          collision_ro => collision_ro,
+          collision_ru => collision_ru
         );
 
    -- Clock process definitions

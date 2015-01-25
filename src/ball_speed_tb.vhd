@@ -45,6 +45,8 @@ ARCHITECTURE behavior OF ball_speed_tb IS
          rst_n : IN  std_logic;
          col_s1 : IN  std_logic;
          col_s2 : IN  std_logic;
+         col_ro : in std_logic;
+         col_ru : in std_logic;
          ball_vx_in : IN  std_logic_vector(15 downto 0);
          ball_vy_in : IN  std_logic_vector(15 downto 0);
          ball_vx_out : OUT  std_logic_vector(15 downto 0);
@@ -58,6 +60,8 @@ ARCHITECTURE behavior OF ball_speed_tb IS
    signal rst_n : std_logic := '0';
    signal col_s1 : std_logic := '0';
    signal col_s2 : std_logic := '0';
+   signal col_ro : std_logic := '0';
+   signal col_ru : std_logic := '0';
    signal ball_vx_in : std_logic_vector(15 downto 0) := (others => '0');
    signal ball_vy_in : std_logic_vector(15 downto 0) := (others => '0');
 
@@ -76,6 +80,8 @@ BEGIN
           rst_n => rst_n,
           col_s1 => col_s1,
           col_s2 => col_s2,
+          col_ro => col_ro,
+          col_ru => col_ru,
           ball_vx_in => ball_vx_in,
           ball_vy_in => ball_vy_in,
           ball_vx_out => ball_vx_out,

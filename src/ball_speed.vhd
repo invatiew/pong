@@ -34,6 +34,8 @@ entity ball_speed is
            rst_n : in  STD_LOGIC;
            col_s1 : in  STD_LOGIC;
            col_s2 : in  STD_LOGIC;
+           col_ro : in std_logic;
+           col_ru : in std_logic;
            ball_vx_in : in  STD_LOGIC_VECTOR (15 downto 0);
            ball_vy_in : in  STD_LOGIC_VECTOR (15 downto 0);
            ball_vx_out : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -44,17 +46,8 @@ architecture Behavioral of ball_speed is
 
 begin
 
-ball_vx : process (clk,rst_n)
-  begin
-    if rst_n = '0' then
-      ball_vx_out <= x"0004";
-      ball_vy_out <= x"0000";
-    elsif rising_edge(clk) then
-      if col_s1 = '1' or col_s2 = '1' then
-        ball_vx_out(15) <= not ball_vx_in(15);
-      end if;
-    end if;
-  end process;
+ball_vx_out <= not ball_vx_in(15) & ball_vx_in(14 downto 0) when col_s1 = '1' or col_s2 = '1' else ball_vx_in(15) & ball_vx_in(14 downto 0);
+ball_vy_out <= not ball_vy_in(15) & ball_vy_in(14 downto 0) when col_ru = '1' or col_ro = '1' else ball_vy_in(15) & ball_vy_in(14 downto 0);
 
 end Behavioral;
 

@@ -41,7 +41,9 @@ entity colision is
            collision_s1 : out  STD_LOGIC;
            collision_s2 : out  STD_LOGIC;
            collision_r1 : out  STD_LOGIC;
-           collision_r2 : out  STD_LOGIC);
+           collision_r2 : out  STD_LOGIC;
+           collision_ro : out  STD_LOGIC;
+           collision_ru : out  STD_LOGIC);
 end colision;
 
 architecture Behavioral of colision is
@@ -99,6 +101,36 @@ col_r2 : process(clk,rst_n)
       end if;
     end if;
   end process;
+
+
+
+
+col_ro : process(clk,rst_n)
+  begin
+    if rst_n = '0' then
+      collision_ro <= '0';
+    elsif rising_edge(clk) then
+      if unsigned(posy_ball) = 590 then
+        collision_ro <= '1';
+      else 
+        collision_ro <= '0';
+      end if;
+    end if;
+  end process;
+  
+col_ru : process(clk,rst_n)
+  begin
+    if rst_n = '0' then
+      collision_ru <= '0';
+    elsif rising_edge(clk) then
+      if unsigned(posy_ball) = 10 then
+        collision_ru <= '1';
+      else 
+        collision_ru <= '0';
+      end if;
+    end if;
+  end process;
+
 
 end Behavioral;
 
