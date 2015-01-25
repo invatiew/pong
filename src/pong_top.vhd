@@ -40,8 +40,9 @@ entity pong_top is
            HWDATA : in  STD_LOGIC_VECTOR (31 downto 0);
            HRDATA : out  STD_LOGIC_VECTOR (31 downto 0);
            HREADYOUT : out  STD_LOGIC;
-           switch_s1 : in  STD_LOGIC;
-           switch_s2 : in  STD_LOGIC);
+           switch_s1 : in  STD_LOGIC_VECTOR (1 downto 0);
+           switch_s2 : in  STD_LOGIC_VECTOR (1 downto 0)
+         );
 end pong_top;
 
 architecture Behavioral of pong_top is
@@ -143,8 +144,25 @@ architecture Behavioral of pong_top is
   
   -- restart for a new round
   signal start_round : std_logic;
+  
+  -- input sync for switches
+  signal switch_s1_step : std_logic_vector(3 downto 0);
+  signal switch_s2_step : std_logic_vector(3 downto 0);
+  signal switch_s1_sync : std_logic_vector(1 downto 0);
+  signal switch_s2_sync : std_logic_vector(1 downto 0);
 
 begin
+
+  switch_sync_proc: process (HCLK)
+    begin
+      if rising_edge (HCLK) then
+        switch_s1_step <= switch_s1_step(1 downto 0) & switch_s1;
+        switch_s2_step <= switch_s2_step(1 downto 0) & switch_s2;
+      end if;
+    end process;
+ 
+  switch_s1_sync <= switch_s1_step(3) and switch_s1_step(1) & switch_s1_step(2) and switch_s1_step(0);
+  switch_s2_sync <= switch_s2_step(3) and switch_s2_step(1) & switch_s2_step(2) and switch_s2_step(0);
 
 	Inst_ball_speed: ball_speed 
   PORT MAP(
