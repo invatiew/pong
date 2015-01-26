@@ -90,14 +90,14 @@ architecture Behavioral of cpu_regs is
         HRDATA <= X"00000000";
       elsif rising_edge(clk) then
         if last_HWRITE = '0' and last_HSEL = '1' and last_HTRANS(1) = '1' then
-          case (last_HADDR) is 
-            when x"00000000" =>
+          case (last_HADDR(1 downto 0)) is 
+            when b"00" =>
               HRDATA <= posy_ball & posx_ball;
-            when x"00000001" =>
+            when b"01" =>
               HRDATA <= posy_s1 & posx_s1;
-            when x"00000002" =>
+            when b"10" =>
               HRDATA <= posy_s2 & posx_s2;
-            when x"00000003" =>
+            when b"11" =>
               HRDATA <= X"00" & score_s1 & X"00" & score_s2;
             when others =>
               HRDATA <= x"00000000";
