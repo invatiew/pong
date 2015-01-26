@@ -74,8 +74,8 @@ architecture Behavioral of pong_top is
 		posy_s2 : IN std_logic_vector(15 downto 0);          
 		collision_s1 : OUT std_logic;
 		collision_s2 : OUT std_logic;
-		collision_r1 : OUT std_logic;
-		collision_r2 : OUT std_logic;
+		collision_r1 : INOUT std_logic;
+		collision_r2 : INOUT std_logic;
 		collision_ro : OUT std_logic;
 		collision_ru : OUT std_logic;
     start_round : out std_logic
@@ -116,6 +116,25 @@ architecture Behavioral of pong_top is
 		);
 	END COMPONENT;
 
+	COMPONENT Object_Pos
+	GENERiC (	
+		def_x: INTEGER := 0;
+		def_y: INTEGER := 0;
+	  def_vx : INTEGER := 0;
+    def_vy : INTEGER := 0
+  );
+  PORT(
+		Vx_in : in  STD_LOGIC_vector (15 downto 0);
+    Vy_in : in  STD_LOGIC_vector (15 downto 0);
+    Vx_out : out  STD_LOGIC_vector (15 downto 0);
+    Vy_out : out  STD_LOGIC_vector (15 downto 0);
+    Px : out  STD_LOGIC_vector (15 downto 0);
+    Py : out  STD_LOGIC_vector (15 downto 0);
+		Clk : in  STD_LOGIC;
+    rst_n : in  STD_LOGIC
+  );
+	END COMPONENT;
+
   -- internal collision signals
   signal col_s1 : std_logic;
   signal col_s2 : std_logic;
@@ -137,6 +156,8 @@ architecture Behavioral of pong_top is
   signal ball_vy_cur : std_logic_vector (15 downto 0);
   signal ball_vx_next : std_logic_vector (15 downto 0);
   signal ball_vy_next : std_logic_vector (15 downto 0); 
+  signal s1_vy : std_logic_vector (15 downto 0);
+  signal s2_vy : std_logic_vector (15 downto 0);
   
   -- signal for the score
   signal score_s1 : std_logic_vector (7 downto 0);
@@ -161,8 +182,8 @@ begin
       end if;
     end process;
  
-  switch_s1_sync <= switch_s1_step(3) and switch_s1_step(1) & switch_s1_step(2) and switch_s1_step(0);
-  switch_s2_sync <= switch_s2_step(3) and switch_s2_step(1) & switch_s2_step(2) and switch_s2_step(0);
+  switch_s1_sync <= (switch_s1_step(3) and switch_s1_step(1)) & (switch_s1_step(2) and switch_s1_step(0));
+  switch_s2_sync <= (switch_s2_step(3) and switch_s2_step(1)) & (switch_s2_step(2) and switch_s2_step(0));
 
 	Inst_ball_speed: ball_speed 
   PORT MAP(
@@ -175,7 +196,7 @@ begin
 		ball_vx_in => ball_vx_cur,
 		ball_vy_in => ball_vy_cur,
 		ball_vx_out => ball_vx_next,
-		ball_vy_out => ball_vx_next
+		ball_vy_out => ball_vy_next
 	);
 
 	Inst_colision: colision 
@@ -228,5 +249,85 @@ begin
 		score_s2 => score_s2
 	);
   
+  Inst_Ball_Pos: Object_Pos 
+  generic map(
+    def_x => 400,
+		def_y => 300,
+    def_vx => 10,
+    def_vy => 0
+	)
+  PORT MAP(
+		Vx_in => ball_vx_next,
+		Vy_in => ball_vy_next,
+		Vx_out => ball_vx_cur,
+		Vy_out => ball_vy_cur,
+		Px => posx_ball,
+		Py => posy_ball,
+		Clk => HCLK,
+		rst_n => HRESETn and not start_round
+	);
+  
+  s1_vy_proc: process(HCLK,HRESETn)
+    begin
+      if HRESETn = '0' then
+        s1_vy <= X"0000";
+      elsif rising_edge(HCLK) then
+        if switch_s1_sync = b"11" then
+          s1_vy <= X"0000";
+        elsif switch_s1_sync = b"10" then
+          s1_vy <= X"8010";
+        elsif switch_s1_sync = b"01" then
+          s1_vy <= X"0010";
+        else 
+          s1_vy <= X"0000";
+        end if;
+      end if;
+    end process;
+  
+  Inst_s1_Pos: Object_Pos 
+  generic map(
+    def_x => 10,
+		def_y => 300
+	)
+  PORT MAP(
+		Vx_in => X"0000",
+		Vy_in => s1_vy,
+		Px => posx_s1,
+		Py => posy_s1,
+		Clk => HCLK,
+		rst_n => HRESETn and not start_round
+	);
+
+  s2_vy_proc: process(HCLK,HRESETn)
+    begin
+      if HRESETn = '0' then
+        s2_vy <= X"0000";
+      elsif rising_edge(HCLK) then
+        if switch_s2_sync = b"11" then
+          s2_vy <= X"0000";
+        elsif switch_s2_sync = b"10" then
+          s2_vy <= X"8010";
+        elsif switch_s2_sync = b"01" then
+          s2_vy <= X"0010";
+        else 
+          s2_vy <= X"0000";
+        end if;
+      end if;
+    end process;
+  
+  Inst_S2_Pos: Object_Pos 
+  generic map(
+    def_x => 790,
+		def_y => 300
+	)
+  PORT MAP(
+		Vx_in => X"0000",
+		Vy_in => s2_vy,
+		Px => posx_s2,
+		Py => posy_s2,
+		Clk => HCLK,
+		rst_n => HRESETn and not start_round
+	);
+
 end Behavioral;
 

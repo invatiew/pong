@@ -40,8 +40,8 @@ entity colision is
            posy_s2 : in  STD_LOGIC_VECTOR (15 downto 0);
            collision_s1 : out  STD_LOGIC;
            collision_s2 : out  STD_LOGIC;
-           collision_r1 : out  STD_LOGIC;
-           collision_r2 : out  STD_LOGIC;
+           collision_r1 : inout  STD_LOGIC;
+           collision_r2 : inout  STD_LOGIC;
            collision_ro : out  STD_LOGIC;
            collision_ru : out  STD_LOGIC;
            start_round : out STD_LOGIC);
@@ -82,7 +82,7 @@ col_r1 : process(clk,rst_n)
     if rst_n = '0' then
       collision_r1 <= '0';
     elsif rising_edge(clk) then
-      if unsigned(posx_ball) = 0 then
+      if signed(posx_ball) <= 0 then
         collision_r1 <= '1';
       else 
         collision_r1 <= '0';
@@ -95,7 +95,7 @@ col_r2 : process(clk,rst_n)
     if rst_n = '0' then
       collision_r2 <= '0';
     elsif rising_edge(clk) then
-      if unsigned(posx_ball) = 800 then
+      if signed(posx_ball) >= 800 then
         collision_r2 <= '1';
       else 
         collision_r2 <= '0';
@@ -103,7 +103,7 @@ col_r2 : process(clk,rst_n)
     end if;
   end process;
 
-start_round <= '1' when collision_r1 or collision_r2 else '0';
+start_round <= '1' when collision_r1 = '1' or collision_r2 = '1' else '0';
 
 
 col_ro : process(clk,rst_n)
@@ -111,7 +111,7 @@ col_ro : process(clk,rst_n)
     if rst_n = '0' then
       collision_ro <= '0';
     elsif rising_edge(clk) then
-      if unsigned(posy_ball) = 590 then
+      if signed(posy_ball) >= 590 then
         collision_ro <= '1';
       else 
         collision_ro <= '0';
@@ -124,7 +124,7 @@ col_ru : process(clk,rst_n)
     if rst_n = '0' then
       collision_ru <= '0';
     elsif rising_edge(clk) then
-      if unsigned(posy_ball) = 10 then
+      if signed(posy_ball) <= 10 then
         collision_ru <= '1';
       else 
         collision_ru <= '0';

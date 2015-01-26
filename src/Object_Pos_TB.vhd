@@ -59,7 +59,7 @@
   --  Test Bench Statements
      tb : PROCESS
      BEGIN
-		rst_n => '1';
+		rst_n <=  '1';
         wait for 100 ns; -- wait until global set/reset completes
 		
         -- Add user defined stimulus here
