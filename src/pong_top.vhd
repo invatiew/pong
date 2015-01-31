@@ -51,8 +51,8 @@ architecture Behavioral of pong_top is
 	PORT(
 		clk : IN std_logic;
 		rst_n : IN std_logic;
-		col_s1 : IN std_logic;
-		col_s2 : IN std_logic;
+		col_s1 : IN std_logic_vector(4 downto 0);
+		col_s2 : IN std_logic_vector(4 downto 0);
 		col_ro : IN std_logic;
 		col_ru : IN std_logic;
 		ball_vx_in : IN std_logic_vector(15 downto 0);
@@ -63,6 +63,10 @@ architecture Behavioral of pong_top is
 	END COMPONENT;
 
 	COMPONENT colision
+  generic (
+    max_x : INTEGER := 640;
+    max_y : integer := 360
+  );
 	PORT(
 		clk : IN std_logic;
 		rst_n : IN std_logic;
@@ -72,8 +76,8 @@ architecture Behavioral of pong_top is
 		posy_s1 : IN std_logic_vector(15 downto 0);
 		posx_s2 : IN std_logic_vector(15 downto 0);
 		posy_s2 : IN std_logic_vector(15 downto 0);          
-		collision_s1 : OUT std_logic;
-		collision_s2 : OUT std_logic;
+		collision_s1 : OUT std_logic_vector(4 downto 0);
+		collision_s2 : OUT std_logic_vector(4 downto 0);
 		collision_r1 : INOUT std_logic;
 		collision_r2 : INOUT std_logic;
 		collision_ro : OUT std_logic;
@@ -121,7 +125,9 @@ architecture Behavioral of pong_top is
 		def_x: INTEGER := 0;
 		def_y: INTEGER := 0;
 	  def_vx : INTEGER := 0;
-    def_vy : INTEGER := 0
+    def_vy : INTEGER := 0;
+    max_x : INTEGER := 640;
+    max_y : integer := 360
   );
   PORT(
 		Vx_in : in  STD_LOGIC_vector (15 downto 0);
@@ -135,9 +141,13 @@ architecture Behavioral of pong_top is
   );
 	END COMPONENT;
 
+  -- resolution constants
+  constant X_RESOLUTION: integer := 640;
+  constant Y_RESOLUTION: integer := 360;
+
   -- internal collision signals
-  signal col_s1 : std_logic;
-  signal col_s2 : std_logic;
+  signal col_s1 : std_logic_vector(4 downto 0);
+  signal col_s2 : std_logic_vector(4 downto 0);
   signal col_r1 : std_logic;
   signal col_r2 : std_logic;
   signal col_ro : std_logic;
@@ -240,7 +250,8 @@ begin
 		score_s2 => score_s2
 	);
  
-	Inst_score: score PORT MAP(
+	Inst_score: score 
+  PORT MAP(
 		clk => HCLK,
 		rst_n => HRESETn,
 		col_r1 => col_r1,
@@ -251,9 +262,9 @@ begin
   
   Inst_Ball_Pos: Object_Pos 
   generic map(
-    def_x => 400,
-		def_y => 300,
-    def_vx => 10,
+    def_x => 320,
+		def_y => 170,
+    def_vx => 64,
     def_vy => 0
 	)
   PORT MAP(
@@ -272,12 +283,12 @@ begin
       if HRESETn = '0' then
         s1_vy <= X"0000";
       elsif rising_edge(HCLK) then
-        if switch_s1_sync = b"11" then
+        if switch_s1_sync = b"11"  then
           s1_vy <= X"0000";
-        elsif switch_s1_sync = b"10" then
-          s1_vy <= X"8010";
-        elsif switch_s1_sync = b"01" then
-          s1_vy <= X"0010";
+        elsif switch_s1_sync = b"10" and unsigned(posy_s1) > 0 then
+          s1_vy <= X"8001";
+        elsif switch_s1_sync = b"01" and unsigned(posy_s1) < (Y_RESOLUTION - 40) then
+          s1_vy <= X"0001";
         else 
           s1_vy <= X"0000";
         end if;
@@ -287,7 +298,7 @@ begin
   Inst_s1_Pos: Object_Pos 
   generic map(
     def_x => 10,
-		def_y => 300
+		def_y => 160
 	)
   PORT MAP(
 		Vx_in => X"0000",
@@ -305,10 +316,10 @@ begin
       elsif rising_edge(HCLK) then
         if switch_s2_sync = b"11" then
           s2_vy <= X"0000";
-        elsif switch_s2_sync = b"10" then
-          s2_vy <= X"8010";
-        elsif switch_s2_sync = b"01" then
-          s2_vy <= X"0010";
+        elsif switch_s2_sync = b"10" and unsigned(posy_s2) > 0 then
+          s2_vy <= X"80B0";
+        elsif switch_s2_sync = b"01" and unsigned(posy_s2) < (Y_RESOLUTION - 40) then
+          s2_vy <= X"00B0";
         else 
           s2_vy <= X"0000";
         end if;
@@ -317,8 +328,8 @@ begin
   
   Inst_S2_Pos: Object_Pos 
   generic map(
-    def_x => 790,
-		def_y => 300
+    def_x => 620,
+		def_y => 160
 	)
   PORT MAP(
 		Vx_in => X"0000",
